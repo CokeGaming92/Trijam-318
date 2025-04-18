@@ -5,9 +5,24 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private ShipStats _shipStats;
+    [SerializeField] private IntVariable _scoreObject;
     [SerializeField] private float _speed;
     [SerializeField] private string _playerTag;
     [SerializeField] private float _damageAmount;
+    [SerializeField] private int _scoreValue;
+
+    private void Start()
+    {
+        _shipStats.OnShipLanded += KillAlien;
+    }
+
+
+    public void KillAlien()
+    {
+        _scoreObject.value += _scoreValue;
+        Destroy(gameObject);
+    }
+
 
     private void Update()
     {
@@ -24,5 +39,11 @@ public class Enemy : MonoBehaviour
             _shipStats.TakeDamage(_damageAmount);
             Destroy(gameObject);
         }
+    }
+
+
+    private void OnDestroy()
+    {
+        _shipStats.OnShipLanded -= KillAlien;
     }
 }

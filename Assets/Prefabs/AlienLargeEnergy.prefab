@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3201269380644819237}
   m_Layer: 0
   m_Name: AlienLargeEnergy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -100,9 +100,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shipStats: {fileID: 11400000, guid: a858e7758994b6a4088a4026d08617c6, type: 2}
+  _scoreObject: {fileID: 11400000, guid: 00eaa192594f87c44a07181b1985243e, type: 2}
   _speed: 1
   _playerTag: Player
   _damageAmount: 100
+  _scoreValue: 0
 --- !u!50 &4318651446726060228
 Rigidbody2D:
   serializedVersion: 4

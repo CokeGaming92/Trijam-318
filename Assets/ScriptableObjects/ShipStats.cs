@@ -44,9 +44,9 @@ public class ShipStats : ScriptableObject
     {
         _engineCount = 5;
         _batteryCount = 5;
-        _gunCount = 0;
+        _gunCount = 1;
         _armorCount = 0;
-        _distanceToGo = 3384400;
+        _distanceToGo = 384400;
 
         UpdateStats();
     }
