@@ -11,9 +11,14 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float _damageAmount;
     [SerializeField] private int _scoreValue;
 
+    private bool _moving;
+
     private void Start()
     {
         _shipStats.OnShipLanded += KillAlien;
+        _shipStats.OnShipDestroyed += FreezeAlien;
+
+        _moving = true;
     }
 
 
@@ -24,8 +29,16 @@ public class Enemy : MonoBehaviour
     }
 
 
+    public void FreezeAlien()
+    {
+        _moving = false;
+    }
+
     private void Update()
     {
+        if (!_moving)
+            return;
+
         Vector2 dir = transform.position.normalized * -_speed * Time.deltaTime; // send it towards the center of the screen
 
         transform.Translate(dir.x, dir.y, 0);
@@ -45,5 +58,6 @@ public class Enemy : MonoBehaviour
     private void OnDestroy()
     {
         _shipStats.OnShipLanded -= KillAlien;
+        _shipStats.OnShipDestroyed -= FreezeAlien;
     }
 }

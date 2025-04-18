@@ -42,8 +42,8 @@ public class ShipStats : ScriptableObject
 
     public void ResetShip()
     {
-        _engineCount = 5;
-        _batteryCount = 5;
+        _engineCount = 1;
+        _batteryCount = 1;
         _gunCount = 1;
         _armorCount = 0;
         _distanceToGo = 384400;
