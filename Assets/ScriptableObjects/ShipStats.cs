@@ -181,4 +181,25 @@ public class ShipStats : ScriptableObject
 
         UpdateStats();
     }
+
+    public int ReadShipStat(StatType stat)
+    {
+        switch (stat)
+        {
+            case StatType.Engine:
+                return _engineCount;
+
+            case StatType.Battery:
+                return _batteryCount;
+
+            case StatType.Gun:
+                return _gunCount;
+
+            case StatType.Armor:
+                return _armorCount;
+
+            default:
+                return 0;
+        }
+    }
 }
