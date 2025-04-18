@@ -15,6 +15,8 @@ public class ShipStats : ScriptableObject
     private float _fireRate;
     private float _armorFactor;
 
+    private float _distanceToGo;
+
     private int _engineCount;
     private int _batteryCount;
     private int _gunCount;
@@ -32,14 +34,19 @@ public class ShipStats : ScriptableObject
 
     // Events for when stuff changes
     public event Action<float> OnPowerChange; // Event to notify when score changes
+    public event Action<float> OnDistanceChange; // Event to notify when score changes
 
+    public event Action OnShipLaunch;
+    public event Action OnShipLanded;
+    public event Action OnShipDestroyed;
 
     public void ResetShip()
     {
-        _engineCount = 0;
-        _batteryCount = 0;
+        _engineCount = 5;
+        _batteryCount = 5;
         _gunCount = 0;
         _armorCount = 0;
+        _distanceToGo = 3384400;
 
         UpdateStats();
     }
@@ -52,39 +59,73 @@ public class ShipStats : ScriptableObject
         _powerTotal = _batteryCount * 100; // each battery gives 100 power
         _powerDrain = (_engineCount * 2) + (_gunCount * 1); // each engine drains 2 power per second, guns drain 1
         _weight = (_batteryCount) + (_engineCount) + (_gunCount) + (_armorCount * 2); // each module is 1 weight, armor is 2
-        _thrust = (_engineCount * 3) - (_weight); // each engine can support 3 modules
+        _thrust = (_engineCount * 1000) - (_weight); // each engine can support 3 modules
         _fireRate = _gunCount;  // firerate goes up by 1 per gun
         _armorFactor = _armorCount * 0.05f; // damage reduced by 5% for each armor
+
+        OnDistanceChange?.Invoke(_distanceToGo);
+        OnPowerChange?.Invoke(_powerTotal);
+
+        
     }
 
     // This starts the power drain on the ship, basically starts the timer
     public void LaunchShip()
     {
         _timeOfLastUpdate = Time.time;
+
+        OnShipLaunch?.Invoke();
     }
 
     // This will be called by the ship manager script, hopefully once per frame
-    public void CalcPowerDrain()
+    public void UpdateShip()
     {
-        float drain = Time.time - _timeOfLastUpdate; // find out how many seconds since last update
+        float timePassed = Time.time - _timeOfLastUpdate; // find out how many seconds since last update
 
-        _powerTotal -= (_powerDrain * drain);
+        //
+        // Do distance
+        //
+        _distanceToGo -= _thrust * timePassed;
+
+        if (_distanceToGo <= 0)
+            ShipLanded();
+
+        OnDistanceChange?.Invoke(_distanceToGo);
+
+
+        //
+        // Do power drain
+        //
+        _powerTotal -= (_powerDrain * timePassed);
         _timeOfLastUpdate = Time.time;
 
         if (_powerTotal < 0)
-            _powerTotal = 0;
+            ShipDestroyed();
 
         OnPowerChange?.Invoke(_powerTotal);
+
+        _timeOfLastUpdate = Time.time;
     }
 
     public void TakeDamage(float damageAmount)
     {
-        _powerTotal -= (damageAmount * _armorFactor);
-
+        _powerTotal -= damageAmount - (damageAmount * _armorFactor);
         OnPowerChange?.Invoke(_powerTotal);
     }
 
-    
+
+    private void ShipDestroyed()
+    {
+        _powerTotal = 0;
+        OnShipDestroyed?.Invoke();
+    }
+
+    private void ShipLanded()
+    {
+        _distanceToGo = 0;
+        OnShipLanded?.Invoke();
+    }
+
 
 
     public void AddShipStat(StatType stat)
