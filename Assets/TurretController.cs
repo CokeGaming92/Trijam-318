@@ -112,4 +112,9 @@ public class TurretController : MonoBehaviour
         yield return new WaitForSeconds(lineDuration);
         lineRenderer.enabled = false;
     }
+
+    private void OnDisable()
+    {
+        lineRenderer.enabled = false;
+    }
 }

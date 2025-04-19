@@ -48,16 +48,18 @@ public class ShipStats : ScriptableObject
     public void GameStart()
     {
         _currency = 1000f;
-    }
-    public void ResetShip()
-    {
+
         _engineCount = 1;
         _batteryCount = 1;
         _gunCount = 1;
         _armorCount = 0;
         _distanceToGo = 384400;
-     
 
+        UpdateStats();
+    }
+    public void ResetShip()
+    {
+        _distanceToGo = 384400;
         UpdateStats();
     }
 
@@ -67,11 +69,11 @@ public class ShipStats : ScriptableObject
     private void UpdateStats()
     {
         _powerTotal = _batteryCount * 100; // each battery gives 100 power
-        _powerDrain = (_engineCount * 2) + (_gunCount * 1); // each engine drains 2 power per second, guns drain 1
-        _weight = (_batteryCount) + (_engineCount) + (_gunCount) + (_armorCount * 2); // each module is 1 weight, armor is 2
-        _thrust = (_engineCount * 1000) - (_weight); // each engine can support 3 modules
-        _fireRate = _gunCount;  // firerate goes up by 1 per gun
-        _armorFactor = _armorCount * 0.05f; // damage reduced by 5% for each armor
+        _powerDrain = (_engineCount * 3) + (_gunCount * 3); //_armorCount; // each engine drains 2 power per second, guns drain 1
+        _weight = (_batteryCount*12) + (_engineCount*5) + (_gunCount*2) + (_armorCount * 3); // each module is 1 weight, armor is 2
+        _thrust = (_engineCount * 500) - (_weight * 1.8f); // each engine can support 3 modules
+        _fireRate = _gunCount * 0.5f;  // firerate goes up by 1 per gun
+        _armorFactor = Mathf.Clamp(_armorCount * 0.02f, 0, 0.95f); // damage reduced by 5% for each armor
 
         _currency = Mathf.Max(_currency, Mathf.Epsilon);
 
@@ -143,11 +145,16 @@ public class ShipStats : ScriptableObject
         OnPowerChange?.Invoke(_powerTotal);
     }
 
+    public void Abort()
+    {
+        ShipDestroyed();
+    }
 
     private void ShipDestroyed()
     {
         _powerTotal = 0;
-        
+
+        OnPowerChange?.Invoke(_powerTotal);
         OnShipDestroyed?.Invoke();
     }
 

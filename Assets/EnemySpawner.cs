@@ -35,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
 
                 Instantiate(_enemyPrefabs[i], spawnPosition, Quaternion.identity);
 
-                _nextSpawnTime = Time.time + (60 / _spawnsPerMinute);
+                _nextSpawnTime = Time.time + (60 / (_spawnsPerMinute + (_shipStats.Thrust * 0.005f)));
             }
         }
     }
@@ -43,7 +43,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void StartSpawning()
     {
-        _nextSpawnTime = Time.time + (60 / _spawnsPerMinute);
+        _nextSpawnTime = Time.time + _initialSpawnDelay;// Time.time + (60 / (_spawnsPerMinute + (_shipStats.Thrust*0.5f)));
         _spawning = true;
     }
 

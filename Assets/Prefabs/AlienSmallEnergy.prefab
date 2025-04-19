@@ -75,7 +75,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -250572535, guid: 5e80362d5842d1943b8f3ee17f67a52c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -103,7 +103,7 @@ MonoBehaviour:
   _scoreObject: {fileID: 11400000, guid: 00eaa192594f87c44a07181b1985243e, type: 2}
   _speed: 2
   _playerTag: Player
-  _damageAmount: 25
+  _damageAmount: 50
   _scoreValue: 10
 --- !u!50 &1136799080367396320
 Rigidbody2D:

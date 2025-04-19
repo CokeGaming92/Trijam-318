@@ -16,8 +16,18 @@ public class PowerDisplay : MonoBehaviour
 
     private void UpdatePower(float power)
     {
-        int powerInt = Mathf.RoundToInt(power);
-        _textField.text = powerInt.ToString();
+        if (power > 0)
+        {
+            int powerInt = Mathf.RoundToInt(power);
+            _textField.text = powerInt.ToString();
+            _textField.color = Color.white;
+        }
+
+        else
+        {
+            _textField.text = "LOW";
+            _textField.color = Color.red;
+        }
     }
 
     private void OnDestroy()

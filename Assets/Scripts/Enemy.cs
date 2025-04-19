@@ -31,7 +31,7 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
 
-        Vector2 dir = transform.position.normalized * -_speed * Time.deltaTime; // send it towards the center of the screen
+        Vector2 dir = transform.position.normalized * -(_speed + (_shipStats.Thrust * 0.0007f)) * Time.deltaTime; // send it towards the center of the screen
 
         transform.Translate(dir.x, dir.y, 0);
     }
