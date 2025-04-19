@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public enum ShipState { Stationary, Flying, Landing, Destroyed};
+public enum ShipState { Stationary, Flying, Landing, Destroyed };
 
 public class ShipManager : MonoBehaviour
 {
+    [SerializeField] private GameObject _gameOverPanel, _gameWinPanel;
     [SerializeField] private ShipStats _shipStats;
     [SerializeField] private GameObject _shipStationary;
     [SerializeField] private GameObject _shipFlying;
     [SerializeField] private GameObject _shipLanding;
     [SerializeField] private GameObject _shipExplode;
+
+
 
     private bool _flying;
 
@@ -21,7 +25,9 @@ public class ShipManager : MonoBehaviour
 
         _shipStats.OnShipLaunch += LaunchShip;
         _shipStats.OnShipDestroyed += DestroyShip;
+        _shipStats.OnShipDestroyed += ResetGameLose;
         _shipStats.OnShipLanded += LandShip;
+        _shipStats.OnShipLanded += ResetGameWin;
 
         UpdateShipState(ShipState.Stationary);
     }
@@ -90,6 +96,26 @@ public class ShipManager : MonoBehaviour
         UpdateShipState(ShipState.Destroyed);
     }
 
+    private void ResetGameLose()
+    {
+        _gameOverPanel.SetActive(true);
+        StartCoroutine(DelayedRestart(4f));
+    }
+
+    private void ResetGameWin()
+    {
+        _gameWinPanel.SetActive(true);
+        StartCoroutine(DelayedRestart(4f));
+    }
+
+    private IEnumerator DelayedRestart(float delay)
+    {
+
+        yield return new WaitForSeconds(delay);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+
+    }
 
     private void OnDestroy()
     {

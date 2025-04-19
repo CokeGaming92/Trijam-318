@@ -6,7 +6,6 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator animator;
-    private bool isMoving = false;
 
     void Start()
     {

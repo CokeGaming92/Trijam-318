@@ -31,7 +31,7 @@ public class ExplodeOnTrigger : MonoBehaviour
             Destroy(tempAudioObject, explosionSound.length);
         }
 
-        GameManager.Instance.AddScore(1);
+       
 
         // Destroy the current game object
         Destroy(gameObject);

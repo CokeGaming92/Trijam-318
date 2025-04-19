@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Collections;
 
-public enum StatType {Engine, Battery, Gun, Armor};
+public enum StatType { Engine, Battery, Gun, Armor };
 
 [CreateAssetMenu(menuName = "ShipStats")]
 public class ShipStats : ScriptableObject
@@ -14,6 +13,7 @@ public class ShipStats : ScriptableObject
     private float _thrust;
     private float _fireRate;
     private float _armorFactor;
+    private float _currency;
 
     private float _distanceToGo;
 
@@ -30,11 +30,16 @@ public class ShipStats : ScriptableObject
     public float Thrust => _thrust;
     public float FireRate => _fireRate;
     public float ArmorFactor => _armorFactor;
+    public float Currency => _currency;
 
 
     // Events for when stuff changes
     public event Action<float> OnPowerChange; // Event to notify when score changes
     public event Action<float> OnDistanceChange; // Event to notify when score changes
+    public event Action<float> OnCurrencyChange; // Event to notify when currency changes
+
+    // One unified event to update price UI based on StatType
+    public event Action<StatType, int> OnPriceChange;
 
     public event Action OnShipLaunch;
     public event Action OnShipLanded;
@@ -47,6 +52,7 @@ public class ShipStats : ScriptableObject
         _gunCount = 1;
         _armorCount = 0;
         _distanceToGo = 384400;
+        _currency = 1000f;
 
         UpdateStats();
     }
@@ -63,10 +69,30 @@ public class ShipStats : ScriptableObject
         _fireRate = _gunCount;  // firerate goes up by 1 per gun
         _armorFactor = _armorCount * 0.05f; // damage reduced by 5% for each armor
 
+        _currency = Mathf.Max(_currency, Mathf.Epsilon);
+
         OnDistanceChange?.Invoke(_distanceToGo);
         OnPowerChange?.Invoke(_powerTotal);
+        OnCurrencyChange?.Invoke(_currency);
 
-        
+        // Trigger price updates for each stat individually
+        OnPriceChange?.Invoke(StatType.Engine, GetNextStatPrice(StatType.Engine));
+        OnPriceChange?.Invoke(StatType.Battery, GetNextStatPrice(StatType.Battery));
+        OnPriceChange?.Invoke(StatType.Gun, GetNextStatPrice(StatType.Gun));
+        OnPriceChange?.Invoke(StatType.Armor, GetNextStatPrice(StatType.Armor));
+
+    }
+
+    public int GetNextStatPrice(StatType stat)
+    {
+        switch (stat)
+        {
+            case StatType.Engine: return _engineCount + 1;
+            case StatType.Battery: return _batteryCount + 1;
+            case StatType.Gun: return _gunCount + 1;
+            case StatType.Armor: return _armorCount + 1;
+            default: return 0;
+        }
     }
 
     // This starts the power drain on the ship, basically starts the timer
@@ -117,6 +143,7 @@ public class ShipStats : ScriptableObject
     private void ShipDestroyed()
     {
         _powerTotal = 0;
+        
         OnShipDestroyed?.Invoke();
     }
 
@@ -126,56 +153,62 @@ public class ShipStats : ScriptableObject
         OnShipLanded?.Invoke();
     }
 
+    public void AddCurrency(int howMuch)
+    {
+        _currency += howMuch;
+        OnCurrencyChange?.Invoke(_currency);
 
+    }
 
     public void AddShipStat(StatType stat)
     {
+        int price = GetNextStatPrice(stat);
+        if (_currency < price) return;
+
         switch (stat)
         {
-            case StatType.Engine:
-                _engineCount++;
-                break;
-
-            case StatType.Battery:
-                _batteryCount++;
-                break;
-
-            case StatType.Gun:
-                _gunCount++;
-                break;
-
-            case StatType.Armor:
-                _armorCount++;
-                break;
-
-            default:
-                break;
+            case StatType.Engine: _engineCount++; break;
+            case StatType.Battery: _batteryCount++; break;
+            case StatType.Gun: _gunCount++; break;
+            case StatType.Armor: _armorCount++; break;
         }
 
+        _currency -= price;
         UpdateStats();
     }
+
 
     public void RemoveShipStat(StatType stat)
     {
         switch (stat)
         {
             case StatType.Engine:
-                if ( _engineCount > 0 ) _engineCount--;
+                if (_engineCount > 0)
+                {
+                    _engineCount--;
+                    _currency += _engineCount + 1;
+                }
                 break;
-
             case StatType.Battery:
-                if (_batteryCount > 0) _batteryCount--;
+                if (_batteryCount > 0)
+                {
+                    _batteryCount--;
+                    _currency += _batteryCount + 1;
+                }
                 break;
-
             case StatType.Gun:
-                if (_gunCount > 0) _gunCount--;
+                if (_gunCount > 0)
+                {
+                    _gunCount--;
+                    _currency += _gunCount + 1;
+                }
                 break;
-
             case StatType.Armor:
-                if (_armorCount > 0) _armorCount--;
-                break;
-
-            default:
+                if (_armorCount > 0)
+                {
+                    _armorCount--;
+                    _currency += _armorCount + 1;
+                }
                 break;
         }
 
@@ -184,22 +217,15 @@ public class ShipStats : ScriptableObject
 
     public int ReadShipStat(StatType stat)
     {
-        switch (stat)
+        return stat switch
         {
-            case StatType.Engine:
-                return _engineCount;
-
-            case StatType.Battery:
-                return _batteryCount;
-
-            case StatType.Gun:
-                return _gunCount;
-
-            case StatType.Armor:
-                return _armorCount;
-
-            default:
-                return 0;
-        }
+            StatType.Engine => _engineCount,
+            StatType.Battery => _batteryCount,
+            StatType.Gun => _gunCount,
+            StatType.Armor => _armorCount,
+            _ => 0
+        };
     }
+
+  
 }

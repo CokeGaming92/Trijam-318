@@ -104,7 +104,7 @@ MonoBehaviour:
   _speed: 2
   _playerTag: Player
   _damageAmount: 25
-  _scoreValue: 0
+  _scoreValue: 10
 --- !u!50 &1136799080367396320
 Rigidbody2D:
   serializedVersion: 4

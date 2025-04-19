@@ -25,6 +25,7 @@ public class Enemy : MonoBehaviour
     public void KillAlien()
     {
         _scoreObject.value += _scoreValue;
+        _shipStats.AddCurrency(_scoreValue);
         Destroy(gameObject);
     }
 
