@@ -45,6 +45,10 @@ public class ShipStats : ScriptableObject
     public event Action OnShipLanded;
     public event Action OnShipDestroyed;
 
+    public void GameStart()
+    {
+        _currency = 1000f;
+    }
     public void ResetShip()
     {
         _engineCount = 1;
@@ -52,7 +56,7 @@ public class ShipStats : ScriptableObject
         _gunCount = 1;
         _armorCount = 0;
         _distanceToGo = 384400;
-        _currency = 1000f;
+     
 
         UpdateStats();
     }

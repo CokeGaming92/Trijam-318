@@ -7,7 +7,8 @@ public enum ShipState { Stationary, Flying, Landing, Destroyed };
 
 public class ShipManager : MonoBehaviour
 {
-    [SerializeField] private GameObject _gameOverPanel, _gameWinPanel;
+    [SerializeField] private GameObject _gameWinPanel;
+    [SerializeField] private GameObject _buyPanel, _sellPanel, _launchButton;
     [SerializeField] private ShipStats _shipStats;
     [SerializeField] private GameObject _shipStationary;
     [SerializeField] private GameObject _shipFlying;
@@ -16,16 +17,17 @@ public class ShipManager : MonoBehaviour
 
 
 
-    private bool _flying;
+    private bool _flying, _landed;
 
     // Start is called before the first frame update
     void Start()
     {
+        _shipStats.GameStart();
         _shipStats.ResetShip();
 
         _shipStats.OnShipLaunch += LaunchShip;
         _shipStats.OnShipDestroyed += DestroyShip;
-        _shipStats.OnShipDestroyed += ResetGameLose;
+        _shipStats.OnShipDestroyed += ResetShipToStart;
         _shipStats.OnShipLanded += LandShip;
         _shipStats.OnShipLanded += ResetGameWin;
 
@@ -37,6 +39,14 @@ public class ShipManager : MonoBehaviour
     {
         if (_flying)
             _shipStats.UpdateShip();
+
+        if (_landed)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                StartCoroutine(DelayedRestart(0f));
+            }
+        }
     }
 
     private void UpdateShipState(ShipState state)
@@ -45,6 +55,9 @@ public class ShipManager : MonoBehaviour
         {
             case ShipState.Stationary:
                 _flying = false;
+                _buyPanel.SetActive(true);
+                _sellPanel.SetActive(true);
+                _launchButton.SetActive(true);
                 _shipStationary.SetActive(true);
                 _shipFlying.SetActive(false);
                 _shipLanding.SetActive(false);
@@ -61,6 +74,7 @@ public class ShipManager : MonoBehaviour
 
             case ShipState.Landing:
                 _flying = false;
+                _landed = true;
                 _shipStationary.SetActive(false);
                 _shipFlying.SetActive(false);
                 _shipLanding.SetActive(true);
@@ -80,6 +94,16 @@ public class ShipManager : MonoBehaviour
         }
     }
 
+    private void ResetShipToStart()
+    {
+        StartCoroutine(ResetShipCoroutine());
+    }
+
+    private IEnumerator ResetShipCoroutine()
+    {
+        yield return new WaitForSeconds(2f); // Wait for 2 seconds (adjust as needed)
+        UpdateShipState(ShipState.Stationary);
+    }
 
     private void LaunchShip()
     {
@@ -96,16 +120,9 @@ public class ShipManager : MonoBehaviour
         UpdateShipState(ShipState.Destroyed);
     }
 
-    private void ResetGameLose()
-    {
-        _gameOverPanel.SetActive(true);
-        StartCoroutine(DelayedRestart(4f));
-    }
-
     private void ResetGameWin()
     {
         _gameWinPanel.SetActive(true);
-        StartCoroutine(DelayedRestart(4f));
     }
 
     private IEnumerator DelayedRestart(float delay)
